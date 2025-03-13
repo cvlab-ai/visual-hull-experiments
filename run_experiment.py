@@ -9,19 +9,19 @@ from xray_angio_3d import reconstruction
 from metrics import *
 from util import *
 
-
 def reconstruct_and_measure(gt, xinfs):
     start = time()
     reconstructed = reconstruction(xinfs)
     hat = np.array(reconstructed['vessel'])
     gt_vox = voxelize_points(gt)
     hat_vox = voxelize_points(hat)
-    # for the computation to take less time we 
     elapsed_s = time() - start
 
     return {
-        "time" : elapsed_s,
-        "dice" : dice3d(gt_vox, hat_vox),
+        "Time [s]" : elapsed_s,
+        "Dice (3D)" : dice3d(gt_vox, hat_vox),
+        "Chamfer distance [mm]" : chamfer3d(gt_vox, hat_vox) * 1000,
+        "clDice3D" : cl_dice3d(gt_vox, hat_vox)
     }
 
 if __name__ == "__main__":

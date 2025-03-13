@@ -10,11 +10,16 @@ def dice3d(gt, hat):
     union = gt.shape[0] + hat.shape[0]
     return 2 * intersection / union
 
-def cl_dice3d(gt, hat):
-    pass
+def chamfer3d(gt, hat):
+    distances = np.linalg.norm(gt[:, np.newaxis] - hat, axis=2)
+    min_dist_gt_to_hat = np.min(distances, axis=1)    
+    min_dist_hat_to_gt = np.min(distances, axis=0)
+    cd = np.mean(min_dist_gt_to_hat) + np.mean(min_dist_hat_to_gt)
+    return cd
 
-def chamfer_dist(gt, hat):
-    pass
+def cl_dice3d(gt, hat):
+    return 0
+
 
 def iou3d(gt, hat):
     pass
