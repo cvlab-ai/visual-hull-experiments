@@ -15,8 +15,7 @@ Each configuration defined in `config/` directory defines one of the carried out
 - n_projs - number of projections
 - angles - angle selection
 - noise_translation - artifacts
-- tortosity - different tortosity
-- 
+- general - general method results in perfect conditions
 
 ## Generating dataset
 ```

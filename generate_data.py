@@ -22,9 +22,9 @@ VESSEL_TYPE="RCA"
 IMG_DIM=512
 
 def parse_config(config):
-    global SID, SOD, SPACING  
-    global TORTOSITY, NAME
-    global COUNT, ALPHA_RANGE_DEG, BETA_RANGE_DEG, RANDOM_ANGLES, GRID_ANGLES
+    global NAME
+    global SID, SOD, SPACING, COUNT, TORTOSITY
+    global RANDOM_ANGLES, GRID_ANGLES, ANGLE_PAIRS
 
     print("loading config...")
   
@@ -36,9 +36,7 @@ def parse_config(config):
     COUNT=int(config['experiment']['dataset']['num_vessels_for_each'])
     RANDOM_ANGLES = config['experiment']['dataset'].get('random_angles')
     GRID_ANGLES = config['experiment']['dataset'].get('grid_angles')
-    # ALPHA_BETA_PAIRS = config['experiment']['dataset'].get("alpha_beta_pairs")
-    # ALPHA_RANGE_DEG = config['experiment']['dataset']['alpha_range_deg']
-    # BETA_RANGE_DEG = config['experiment']['dataset']['beta_range_deg']
+    ANGLE_PAIRS = config['experiment']['dataset'].get('angle_pairs')
 
 def ensure_generate_vessel_3d(tree_path):
     # vessel can be None due to invalid subsampling
@@ -91,6 +89,8 @@ def get_angles():
         beta_values = np.arange(0, max + 1, step) 
         pairs = [(alpha, beta) for alpha in alpha_values for beta in beta_values]
         return pairs
+    if ANGLE_PAIRS is not None:
+        return ANGLE_PAIRS
     raise Exception("No angle generation mode specified")
 
 def mkdirs():

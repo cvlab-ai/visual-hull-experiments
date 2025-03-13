@@ -1,0 +1,22 @@
+experiment:
+  name: general
+  dataset: 
+    tortosity:
+      - simple
+      - moderate
+      - tortuous
+    num_vessels_for_each: 100
+    angle_pairs:
+      - [0, 0]
+      - [0, 90]
+      - [90, 0]
+    SID: 1.2
+    SOD: 0.8
+    SPACING: 0.00035
+
+  testcase:
+    type: general
+    metrics:
+      - dice
+      - iou
+      - chamfer

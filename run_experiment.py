@@ -30,11 +30,31 @@ def reconstruct_and_measure(gt, xinfs):
         "Chamfer distance 3D [mm]" : chamfer3d(gt_vox, hat_vox) * 1000 if 'chamfer' in METRICS else None,
     }
 
+def case_general(config):
+    df = []
+    CUTOFF=10
+    number_of_vessels = min(config['experiment']['dataset']['num_vessels_for_each'], CUTOFF)
+
+    for tortosity in config['experiment']['dataset']['tortosity']:
+        for ix in range(0, number_of_vessels):
+            vessel = f"{tortosity}:{ix}"
+            print(vessel)
+            gt, xinfs = load_sample(NAME, ix, tortosity)
+            res = reconstruct_and_measure(gt, xinfs)
+            res = pd.DataFrame([{
+                    "vessel" : vessel,
+                    "tortosity" : tortosity,
+                    **res
+            }])
+            df.append(res)    
+    result = pd.concat(df, ignore_index=True)
+    result.to_csv(os.path.join(OUTPUT_DIR, NAME, OUTPUT_FILENAME))
+
 def case_projections(config):
     df = []
     gt, xinfs = load_sample(NAME, 0, "moderate")
 
-    for no_projections in range(1, 16):
+    for no_projections in range(1, config):
         print(no_projections)
         for _ in range(config['experiment']['testcase']['repeat_selection']):
             res = reconstruct_and_measure(gt, np.random.choice(xinfs, no_projections, replace=False))
@@ -55,13 +75,6 @@ def case_angles(config):
             return v
         return v / norm
     
-    def random_combination(iterable, r):
-        "Random selection from itertools.combinations(iterable, r)"
-        pool = tuple(iterable)
-        n = len(pool)
-        indices = sorted(random.sample(range(n), r))
-        return tuple(pool[i] for i in indices)
-
     gt, xinfs = load_sample(NAME, 0, "moderate")
     triplet_count = config["experiment"]["testcase"]["triplet_count"]
     random.seed(43)
@@ -105,4 +118,5 @@ if __name__ == "__main__":
         case_projections(config)
     elif TYPE == 'angles':
         case_angles(config)
-
+    elif TYPE == 'general':
+        case_general(config)
