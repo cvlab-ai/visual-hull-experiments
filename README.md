@@ -26,3 +26,8 @@ Warning! This will overwrite data directory
 ./run_experiment -f [config]
 ```
 configs are in config/ directory
+
+## Generating figures
+```
+./figures.py
+```

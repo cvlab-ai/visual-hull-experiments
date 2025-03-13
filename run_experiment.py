@@ -1,32 +1,37 @@
 #!.test-env/bin/python3
-
+import pickle
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 
+from time import time
+from xray_angio_3d import reconstruction
 
+INPUT_DIR="data/"
 
-def test(do_random = False):
-    rng = np.random.default_rng()
-    
-    projections = []
-    projections.append(xinf)
-    rec = reconstruction(projections)
-    return 0
+def reconstruct_and_measure(gt, xinfs):
+    start = time()
+    reconstructed = reconstruction(xinfs)
+    elapsed_s = time() - start
 
+    return {
+        "time" : elapsed_s
+    }
+
+def load_sample(ix, tortosity):
+    try:
+        tortosity_dir = os.path.join(INPUT_DIR, str(tortosity))
+        gt_filename = os.path.join(tortosity_dir, f'{ix}.gt')
+        xinfs_filename = os.path.join(tortosity_dir, f'{ix}.xinfs')
+        with open(gt_filename, 'rb') as gt_file:
+            gt = pickle.load(gt_file)
+        with open(xinfs_filename, 'rb') as xinfs_file:
+            xinfs = pickle.load(xinfs_file)
+    except:
+        gt, xinfs = None, None
+    return gt, xinfs
 
 if __name__ == "__main__":
-
-    icp_mse_random = test(True)
-    print(f"metric of random points {icp_mse_random}")
-
-    mses = []
-    sum_mse = 0
-    for i in range(NUM_TESTS):
-        icp_mse = test()
-        print(f"{i}-th test MSE {icp_mse}")
-        mses.append(icp_mse)
-
-    avg_mse = np.average(mses)
-    stdev_mse = np.std(mses)
-    print(f"average MSE {avg_mse}")
-    print(f"stdev of MSE {stdev_mse}")
+    result = reconstruct_and_measure(*load_sample(0, "tortuous"))
+    print(result)
+    pass
