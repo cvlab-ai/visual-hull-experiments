@@ -2,14 +2,15 @@
 
 import matplotlib.pyplot as plt
 
-from run_experiment import load_sample
 from xray_angio_3d import reconstruction
+from util import *
 
 def figure_2_synth():
     gt, xinfs = load_sample(0, "tortuous")
     reconstructed = reconstruction(xinfs)
+    reconstructed['vessel'] = voxelize_points(np.array(reconstructed['vessel']))
+    gt = voxelize_points(gt)
     print(reconstructed.keys())
-    gt = gt[::100]
     X_gt, Y_gt, Z_gt = zip(*gt)
     X_hat, Y_hat, Z_hat = zip(*reconstructed['vessel'])
 
@@ -24,4 +25,7 @@ def figure_2_synth():
     plt.show()
 
 if __name__ == "__main__":
+    import matplotlib
+    matplotlib.use("tkagg")
+    # matplotlib.rcParams['webagg.address'] = '0.0.0.0'
     figure_2_synth()
