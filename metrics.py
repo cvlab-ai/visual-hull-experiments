@@ -15,11 +15,10 @@ def chamfer3d(gt, hat):
     min_dist_gt_to_hat = np.min(distances, axis=1)    
     min_dist_hat_to_gt = np.min(distances, axis=0)
     cd = np.mean(min_dist_gt_to_hat) + np.mean(min_dist_hat_to_gt)
-    return cd
+    return cd / 2
 
 def cl_dice3d(gt, hat):
     return 0
-
 
 def iou3d(gt, hat):
     pass
