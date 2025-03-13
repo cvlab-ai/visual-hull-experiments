@@ -1,0 +1,28 @@
+# Test environment
+for the article "Visual hull-based approach for coronary 3D reconstruction from synthetic heart arteries projections"
+
+## Setting up the environment
+Initialize submodules and then
+```
+python3 -m venv .test-env
+source .test-env/bin/activate
+pip3 install ./coronaryApp
+pip3 install -r requirements.txt
+```
+
+## Generating dataset
+```
+./generate_data.py -f config/generate_data.yaml
+```
+
+## Fetching dataset used in the article
+Warning! This will overwrite data directory
+```
+./download_data.py
+```
+
+## Running tests
+```
+./run_experiment -f [config]
+```
+configs are in config/ directory

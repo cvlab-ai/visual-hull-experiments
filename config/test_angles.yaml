@@ -1,0 +1,7 @@
+
+test: 
+  case:
+    - angles
+  metrics:
+    - dice
+  generate_latex: true

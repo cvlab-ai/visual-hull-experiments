@@ -1,0 +1,11 @@
+generate: 
+  tortosity:
+    - tortuous
+    - moderate
+    - simple
+  num_vessels_for_each: 100
+  alpha_range_deg: [0, 180, 10]
+  beta_range_deg: [0, 360, 10]
+  SID: 1.2
+  SOD: 0.8
+  SPACING: 0.00035

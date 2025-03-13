@@ -1,0 +1,6 @@
+[submodule "coronaryApp"]
+	path = coronaryApp
+	url = git@github.com:laudominik/coronaryApp.git
+[submodule "vessel_tree_generator"]
+	path = vessel_tree_generator
+	url = git@github.com:laudominik/vessel_tree_generator.git
