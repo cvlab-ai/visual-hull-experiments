@@ -14,7 +14,6 @@ import os
 
 from xray_angio_3d import reconstruction, XRayInfo
 from vessel_tree_generator.module import *
-from math import radians
 
 OUTPUT_DIR="data/"
 VESSEL_TYPE="RCA"
@@ -70,12 +69,12 @@ def generate_tree(tree_path, angle_pairs):
 
 def get_angles():
     return list(itertools.product(
-        [radians(alpha) for alpha in range(
+        [alpha for alpha in range(
             ALPHA_RANGE_DEG[0],
             ALPHA_RANGE_DEG[1],
             ALPHA_RANGE_DEG[2]
         )],
-        [radians(beta) for beta in range(
+        [beta for beta in range(
             BETA_RANGE_DEG[0],
             BETA_RANGE_DEG[1],
             BETA_RANGE_DEG[2]
