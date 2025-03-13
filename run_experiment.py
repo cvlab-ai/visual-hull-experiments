@@ -5,6 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import itertools
+import random
 
 from time import time
 from xray_angio_3d import reconstruction
@@ -48,18 +49,45 @@ def case_projections(config):
 def case_angles(config):
     df = []
 
+    def normalize(v):
+        norm = np.linalg.norm(v)
+        if norm == 0:
+            return v
+        return v / norm
+    
+    def random_combination(iterable, r):
+        "Random selection from itertools.combinations(iterable, r)"
+        pool = tuple(iterable)
+        n = len(pool)
+        indices = sorted(random.sample(range(n), r))
+        return tuple(pool[i] for i in indices)
+
     gt, xinfs = load_sample(NAME, 0, "moderate")
-    triplets  = list(itertools.combinations(xinfs, 3))
-    for i, triplet in enumerate(triplets):
-        print(f"{i}/{len(triplets)}")
+    triplet_count = config["experiment"]["testcase"]["triplet_count"]
+    random.seed(43)
+    random.shuffle(xinfs)
+    random_triplets = [random.sample(xinfs, 3) for _ in range(triplet_count)]
+    for i, triplet in enumerate(random_triplets):
+        print(f"{i + 1} / {triplet_count}")
         res = reconstruct_and_measure(gt, triplet)
+        vectors = [
+            [triplet[0].acquisition_params['alpha'], triplet[0].acquisition_params['beta']],
+            [triplet[1].acquisition_params['alpha'], triplet[1].acquisition_params['beta']],
+            [triplet[2].acquisition_params['alpha'], triplet[2].acquisition_params['beta']]
+        ]
+        vectors = [normalize(v) for v in vectors]
+        matrix = np.array(vectors)
+        _, s, _ = np.linalg.svd(matrix)
+        s = min(s)
+        
         res = pd.DataFrame([{
-            "Alpha 0": triplet[0].acquisition_params['alpha'],
-            'Beta 0': triplet[0].acquisition_params['beta'],
-            "Alpha 1": triplet[1].acquisition_params['alpha'],
-            'Beta 1': triplet[1].acquisition_params['beta'],
-            "Alpha 2": triplet[2].acquisition_params['alpha'],
-            'Beta 2': triplet[2].acquisition_params['beta'],
+            "v0_x": vectors[0][0],
+            "v0_y": vectors[0][1],
+            "v1_x": vectors[1][0],
+            "v1_y": vectors[1][1],
+            "v2_x": vectors[2][0],
+            "v2_y": vectors[2][1], 
+            "Singular_2": s,     # The smallest singular value gives a measure of linear dependence.
             **res,
         }])
         df.append(res)   
