@@ -1,0 +1,22 @@
+experiment:
+  name: n_projs
+  dataset: 
+    tortosity:
+      - moderate
+    num_vessels_for_each: 1
+    random_angles: 
+      pair_count: 1000
+      min_angle: -180
+      max_angle: 180
+    SID: 1.2
+    SOD: 0.8
+    SPACING: 0.00035
+
+  testcase:
+    type: projections
+    repeat_selection: 2
+    metrics:
+      - dice
+      - iou
+      - chamfer
+      - time

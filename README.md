@@ -10,9 +10,17 @@ pip3 install ./coronaryApp
 pip3 install -r requirements.txt
 ```
 
+## Experiments
+Each configuration defined in `config/` directory defines one of the carried out experiments and tests a single independent variable:
+- n_projs - number of projections
+- angles - angle selection
+- noise_translation - artifacts
+- tortosity - different tortosity
+- 
+
 ## Generating dataset
 ```
-./generate_data.py -f config/generate_data.yaml
+./generate_data.py -f [config]
 ```
 
 ## Fetching dataset used in the article
@@ -25,7 +33,6 @@ Warning! This will overwrite data directory
 ```
 ./run_experiment -f [config]
 ```
-configs are in config/ directory
 
 ## Generating figures
 ```

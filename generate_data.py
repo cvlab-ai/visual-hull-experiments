@@ -1,8 +1,8 @@
 #!.test-env/bin/python3
 # script for synthetic dataset generation
 # generated sample naming scheme is:
-# <OUTPUT_DIR>/<tortosity>/<ix>.gt
-# <OUTPUT_DIR>/<tortosity>/<ix>.xinfs
+# <OUTPUT_DIR>/<experiment_name>/<tortosity>/<ix>.gt
+# <OUTPUT_DIR>/<experiment_name>/<tortosity>/<ix>.xinfs
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,29 +11,33 @@ import itertools
 import argparse
 import pickle
 import os
+import random
 
 from xray_angio_3d import reconstruction, XRayInfo
 from vessel_tree_generator.module import *
+from util import load_config
 
 OUTPUT_DIR="data/"
 VESSEL_TYPE="RCA"
 IMG_DIM=512
 
-def load_config(config_path):
+def parse_config(config):
     global SID, SOD, SPACING  
-    global TORTOSITY
-    global COUNT, ALPHA_RANGE_DEG, BETA_RANGE_DEG
+    global TORTOSITY, NAME
+    global COUNT, ALPHA_RANGE_DEG, BETA_RANGE_DEG, RANDOM_ANGLES
 
     print("loading config...")
-    with open(config_path, "r") as file:
-        config = yaml.safe_load(file)
-    SID=float(config['generate']['SID'])
-    SOD=float(config['generate']['SOD'])
-    SPACING=float(config['generate']['SPACING'])
-    TORTOSITY = config['generate']['tortosity']
-    COUNT=int(config['generate']['num_vessels_for_each'])
-    ALPHA_RANGE_DEG = config['generate']['alpha_range_deg']
-    BETA_RANGE_DEG = config['generate']['beta_range_deg']
+  
+    NAME = config['experiment']['name']
+    SID=float(config['experiment']['dataset']['SID'])
+    SOD=float(config['experiment']['dataset']['SOD'])
+    SPACING=float(config['experiment']['dataset']['SPACING'])
+    TORTOSITY = config['experiment']['dataset']['tortosity']
+    COUNT=int(config['experiment']['dataset']['num_vessels_for_each'])
+    RANDOM_ANGLES = config['experiment']['dataset'].get('random_angles')
+    # ALPHA_BETA_PAIRS = config['experiment']['dataset'].get("alpha_beta_pairs")
+    # ALPHA_RANGE_DEG = config['experiment']['dataset']['alpha_range_deg']
+    # BETA_RANGE_DEG = config['experiment']['dataset']['beta_range_deg']
 
 def ensure_generate_vessel_3d(tree_path):
     # vessel can be None due to invalid subsampling
@@ -68,43 +72,46 @@ def generate_tree(tree_path, angle_pairs):
     return gt, xinfs
 
 def get_angles():
-    return list(itertools.product(
-        [alpha for alpha in range(
-            ALPHA_RANGE_DEG[0],
-            ALPHA_RANGE_DEG[1],
-            ALPHA_RANGE_DEG[2]
-        )],
-        [beta for beta in range(
-            BETA_RANGE_DEG[0],
-            BETA_RANGE_DEG[1],
-            BETA_RANGE_DEG[2]
-        )],
-    ))
+    if RANDOM_ANGLES is None:
+        return None
+    
+# random_angles: 
+#       pair_count: 1000
+#       min_angle: 0
+#       max_angle: 180
+
+    pc = RANDOM_ANGLES['pair_count']
+    min = RANDOM_ANGLES['min_angle']
+    max = RANDOM_ANGLES['max_angle']
+    pairs = []
+    for _ in range(pc):
+        alpha = random.randint(min, max)
+        beta = random.randint(min, max)
+        pairs.append((alpha, beta))
+    return pairs
+  
 
 def mkdirs():
     print(f"making necessary dirs...")
+    os.makedirs(os.path.join(OUTPUT_DIR, NAME), exist_ok=True)
     for tortosity in TORTOSITY:
-        tortosity_dir = os.path.join(OUTPUT_DIR, str(tortosity))
+        tortosity_dir = os.path.join(OUTPUT_DIR, NAME, str(tortosity))
         os.makedirs(tortosity_dir, exist_ok=True)
 
 def save_data(ix, tortosity, gt, xinfs):
     print(f'saving     {tortosity}:{ix}')
-    gt_filename = os.path.join(OUTPUT_DIR, tortosity, f'{ix}.gt')
-    xinfs_filename = os.path.join(OUTPUT_DIR, tortosity, f'{ix}.xinfs')
+    gt_filename = os.path.join(OUTPUT_DIR, NAME, tortosity, f'{ix}.gt')
+    xinfs_filename = os.path.join(OUTPUT_DIR, NAME, tortosity, f'{ix}.xinfs')
     with open(gt_filename, 'wb') as f:
         pickle.dump(gt, f)
     with open(xinfs_filename, 'wb') as f:
         pickle.dump(xinfs, f)
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Load a YAML config file.")
-    parser.add_argument("-f", "--file", required=True, help="Path to the config file")
-    args = parser.parse_args()
-    
-    load_config(args.file)
+    parse_config(load_config())
     mkdirs()
     angle_pairs = get_angles()
-
+    print(angle_pairs)
     for tortosity in TORTOSITY:
         tree_path = f"./vessel_tree_generator/RCA_branch_control_points/{tortosity}"
       

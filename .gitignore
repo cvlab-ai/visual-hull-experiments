@@ -3,4 +3,4 @@ data/tortuous
 data/moderate
 data/simple
 __pycache__/
-data/experiment_results.csv
+data/*
