@@ -105,7 +105,13 @@ def case_angles(config):
         }])
         df.append(res)   
     result = pd.concat(df, ignore_index=True)
-    print(result)
+    result.to_csv(os.path.join(OUTPUT_DIR, NAME, OUTPUT_FILENAME))
+
+def case_translations(config):
+    pass
+
+def case_scaling(config):
+    pass
 
 if __name__ == "__main__":
     global config, METRICS, NAME
@@ -120,3 +126,8 @@ if __name__ == "__main__":
         case_angles(config)
     elif TYPE == 'general':
         case_general(config)
+    elif TYPE == 'translations':
+        case_translations(config)
+    elif TYPE == 'scaling':
+        case_scaling(config)
+

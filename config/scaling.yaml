@@ -1,0 +1,23 @@
+experiment:
+  name: scaling
+  dataset: 
+    tortosity:
+      - simple
+      - moderate
+      - tortuous
+    num_vessels_for_each: 1
+    angle_pairs:
+      - [0, 0]
+      - [0, 90]
+      - [90, 0]
+    scaling_xy_range: [-5, 5, 0.1]
+    SID: 1.2
+    SOD: 0.8
+    SPACING: 0.00035
+
+  testcase:
+    type: translation
+    metrics:
+      - dice
+      - iou
+      - chamfer
