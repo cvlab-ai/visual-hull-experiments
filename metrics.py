@@ -3,7 +3,6 @@ import numpy as np
 # 3D metrics
 
 def dice3d(gt, hat):
-    print(gt.shape, hat.shape)
     distances = np.linalg.norm(gt[:, np.newaxis] - hat, axis=2)
     min_dist_gt_to_hat = np.min(distances, axis=1)
     intersection = np.sum(min_dist_gt_to_hat == 0)
@@ -17,11 +16,12 @@ def chamfer3d(gt, hat):
     cd = np.mean(min_dist_gt_to_hat) + np.mean(min_dist_hat_to_gt)
     return cd / 2
 
-def cl_dice3d(gt, hat):
-    return 0
-
 def iou3d(gt, hat):
-    pass
+    gt_set = set(map(tuple, gt))
+    hat_set = set(map(tuple, hat))
+    I = len(gt_set.intersection(hat_set))
+    U = len(gt_set.union(hat_set))
+    return I / U
 
 # 2D metrics
 
