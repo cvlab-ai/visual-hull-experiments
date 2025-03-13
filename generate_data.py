@@ -24,7 +24,7 @@ IMG_DIM=512
 def parse_config(config):
     global SID, SOD, SPACING  
     global TORTOSITY, NAME
-    global COUNT, ALPHA_RANGE_DEG, BETA_RANGE_DEG, RANDOM_ANGLES
+    global COUNT, ALPHA_RANGE_DEG, BETA_RANGE_DEG, RANDOM_ANGLES, GRID_ANGLES
 
     print("loading config...")
   
@@ -35,6 +35,7 @@ def parse_config(config):
     TORTOSITY = config['experiment']['dataset']['tortosity']
     COUNT=int(config['experiment']['dataset']['num_vessels_for_each'])
     RANDOM_ANGLES = config['experiment']['dataset'].get('random_angles')
+    GRID_ANGLES = config['experiment']['dataset'].get('grid_angles')
     # ALPHA_BETA_PAIRS = config['experiment']['dataset'].get("alpha_beta_pairs")
     # ALPHA_RANGE_DEG = config['experiment']['dataset']['alpha_range_deg']
     # BETA_RANGE_DEG = config['experiment']['dataset']['beta_range_deg']
@@ -72,24 +73,25 @@ def generate_tree(tree_path, angle_pairs):
     return gt, xinfs
 
 def get_angles():
-    if RANDOM_ANGLES is None:
-        return None
-    
-# random_angles: 
-#       pair_count: 1000
-#       min_angle: 0
-#       max_angle: 180
-
-    pc = RANDOM_ANGLES['pair_count']
-    min = RANDOM_ANGLES['min_angle']
-    max = RANDOM_ANGLES['max_angle']
-    pairs = []
-    for _ in range(pc):
-        alpha = random.randint(min, max)
-        beta = random.randint(min, max)
-        pairs.append((alpha, beta))
-    return pairs
-  
+    if RANDOM_ANGLES is not None:
+        pc = RANDOM_ANGLES['pair_count']
+        min = RANDOM_ANGLES['min_angle']
+        max = RANDOM_ANGLES['max_angle']
+        pairs = []
+        for _ in range(pc):
+            alpha = random.randint(min, max)
+            beta = random.randint(min, max)
+            pairs.append((alpha, beta))
+        return pairs
+    if GRID_ANGLES is not None:
+        min = GRID_ANGLES['min_angle']
+        max = GRID_ANGLES['max_angle']
+        step = GRID_ANGLES['step']
+        alpha_values = np.arange(min, max + 1, step)
+        beta_values = np.arange(0, max + 1, step) 
+        pairs = [(alpha, beta) for alpha in alpha_values for beta in beta_values]
+        return pairs
+    raise Exception("No angle generation mode specified")
 
 def mkdirs():
     print(f"making necessary dirs...")
@@ -111,7 +113,6 @@ if __name__ == "__main__":
     parse_config(load_config())
     mkdirs()
     angle_pairs = get_angles()
-    print(angle_pairs)
     for tortosity in TORTOSITY:
         tree_path = f"./vessel_tree_generator/RCA_branch_control_points/{tortosity}"
       
