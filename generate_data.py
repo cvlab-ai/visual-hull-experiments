@@ -26,7 +26,7 @@ def parse_config(config):
     global NAME
     global SID, SOD, SPACING, COUNT, TORTOSITY
     global RANDOM_ANGLES, GRID_ANGLES, ANGLE_PAIRS
-    global TRANSLATION_XY_RANGE, SCALING_XY_RANGE
+    global NOISE_XY_RANGE
 
     print("loading config...")
     
@@ -44,9 +44,10 @@ def parse_config(config):
     ANGLE_PAIRS = config['experiment']['dataset'].get('angle_pairs')
     TRANSLATION_XY_RANGE = config['experiment']['dataset'].get("translation_xy_range", [0,1,1])
     SCALING_XY_RANGE = config['experiment']['dataset'].get("scaling_xy_range", [1,2,1])
-
     TRANSLATION_XY_RANGE = range(TRANSLATION_XY_RANGE[0], TRANSLATION_XY_RANGE[1], TRANSLATION_XY_RANGE[2])
-    TRANSLATION_XY_RANGE = list(itertools.product(TRANSLATION_XY_RANGE, repeat=2))
+    SCALING_XY_RANGE = np.arange(SCALING_XY_RANGE[0], SCALING_XY_RANGE[1], SCALING_XY_RANGE[2])
+    NOISE_XY_RANGE = list(itertools.product(TRANSLATION_XY_RANGE, TRANSLATION_XY_RANGE, SCALING_XY_RANGE))
+
 
 def ensure_generate_vessel_3d(tree_path):
     # vessel can be None due to invalid subsampling
@@ -68,15 +69,14 @@ def generate_tree(tree_path, angle_pairs):
         )
         translation = []
         if i == 0:
-            noise_t_xy_range = TRANSLATION_XY_RANGE
+            noise_t_xy_range = NOISE_XY_RANGE
         else: 
-            noise_t_xy_range = [(0, 0)]
-
-        for t_v in noise_t_xy_range:
+            noise_t_xy_range = [(0, 0, 1)]
+        for (t_x, t_y, s) in noise_t_xy_range:
             xinf = XRayInfo()
             xinf.width = 512
             xinf.height = 512
-            xinf.image = translate(projection, t_v)
+            xinf.image = scale(translate(projection, (t_x, t_y)), s)
             xinf.acquisition_params = {
                 'sid': SID,
                 'sod': SOD,
@@ -86,7 +86,7 @@ def generate_tree(tree_path, angle_pairs):
                 'spacing_c': SPACING,
             }
             xinfs.append(xinf)
-            translation.append(t_v)
+            translation.append((t_x, t_y, s))
         translations.append(translation)
     return gt, xinfs, translations
 
@@ -98,7 +98,15 @@ def translate(img, vec):
     return warped
 
 def scale(img, coeff):
-    pass
+    coeff_x, coeff_y = coeff, coeff
+    h, w = img.shape[:2]
+    center = (w / 2, h / 2)    
+    M = np.float32([
+        [coeff_x, 0, center[0] - coeff_x * center[0]],
+        [0, coeff_y, center[1] - coeff_y * center[1]]
+    ])
+    warped = cv2.warpAffine(img.astype(np.uint8), M, (w, h))
+    return warped.astype(np.bool)
 
 def get_angles():
     if RANDOM_ANGLES is not None:

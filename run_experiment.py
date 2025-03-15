@@ -126,7 +126,7 @@ def case_angles(config):
     result = pd.concat(df, ignore_index=True)
     result.to_csv(os.path.join(OUTPUT_DIR, NAME, OUTPUT_FILENAME))
 
-def case_noise(config):
+def case_noise(_):
     df = []
     gt, xinfs, noise = load_sample(NAME, 0, "moderate")
     picked_noise = noise[0]
@@ -135,14 +135,14 @@ def case_noise(config):
     xinfo1 = xinfs[-1]
     xinfo2 = xinfs[-2]
 
-    for i, (t_x, t_y) in enumerate(picked_noise):
+    for i, (t_x, t_y, s) in enumerate(picked_noise):
         print(f"{i}/{len(picked_noise)}")
         xinfo0 = xinfs[i]
         res = reconstruct_and_measure(gt, [xinfo0, xinfo1, xinfo2])
         res = pd.DataFrame([{
             'translation' : [t_x, t_y],
             'translation_norm' : np.linalg.norm([t_x, t_y]),
-            'scale' : 1,
+            'scale' : s,
             **res
         }])
         df.append(res)
