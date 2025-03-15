@@ -76,7 +76,9 @@ rpds-py==0.23.1
 scikit-image==0.24.0
 scikit-learn==1.6.1
 scipy==1.13.1
+seaborn==0.13.2
 six==1.17.0
+sns==0.1
 stack-data==0.6.3
 threadpoolctl==3.5.0
 tifffile==2024.8.30

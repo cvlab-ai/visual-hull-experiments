@@ -51,7 +51,7 @@ def reconstruct_and_measure(gt, xinfs):
 
 def case_general(config):
     df = []
-    CUTOFF=10
+    CUTOFF=1000
     number_of_vessels = min(config['experiment']['dataset']['num_vessels_for_each'], CUTOFF)
 
     for tortosity in config['experiment']['dataset']['tortosity']:
