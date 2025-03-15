@@ -2,22 +2,21 @@ experiment:
   name: translations
   dataset: 
     tortosity:
-      - simple
       - moderate
-      - tortuous
     num_vessels_for_each: 1
     angle_pairs:
       - [0, 0]
       - [0, 90]
       - [90, 0]
-    translation_xy_range: [-100, 100, 10]
+    translation_xy_range: [-20, 20, 10]
     SID: 1.2
     SOD: 0.8
     SPACING: 0.00035
-
   testcase:
-    type: translation
+    type: noise
     metrics:
       - dice
       - iou
       - chamfer
+      - dice2d
+      - iou2d

@@ -2,9 +2,7 @@ experiment:
   name: scaling
   dataset: 
     tortosity:
-      - simple
       - moderate
-      - tortuous
     num_vessels_for_each: 1
     angle_pairs:
       - [0, 0]
@@ -16,7 +14,7 @@ experiment:
     SPACING: 0.00035
 
   testcase:
-    type: translation
+    type: scaling
     metrics:
       - dice
       - iou

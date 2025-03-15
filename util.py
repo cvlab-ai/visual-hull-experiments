@@ -18,13 +18,16 @@ def load_sample(experiment_name, ix, tortosity):
         tortosity_dir = os.path.join(INPUT_DIR, experiment_name, str(tortosity))
         gt_filename = os.path.join(tortosity_dir, f'{ix}.gt')
         xinfs_filename = os.path.join(tortosity_dir, f'{ix}.xinfs')
+        noise_filename = os.path.join(tortosity_dir, f'{ix}.noise')
         with open(gt_filename, 'rb') as gt_file:
             gt = pickle.load(gt_file)
         with open(xinfs_filename, 'rb') as xinfs_file:
             xinfs = pickle.load(xinfs_file)
+        with open(noise_filename, 'rb') as f:
+            noise = pickle.load(f)
     except:
-        gt, xinfs = None, None
-    return gt, xinfs
+        gt, xinfs, noise = None, None, None
+    return gt, xinfs, noise
 
 def load_config():
     parser = argparse.ArgumentParser(description="Load a YAML config file.")

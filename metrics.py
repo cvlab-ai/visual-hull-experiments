@@ -25,5 +25,16 @@ def iou3d(gt, hat):
 
 # 2D metrics
 
-def dice2d(gt, hat):
-    pass
+def dice2d(img_gt, img_hat):
+    A = set(zip(*[(i, j) for i, row in enumerate(img_gt) for j, v in enumerate(row) if v > 0]))
+    B = set(zip(*[(i, j) for i, row in enumerate(img_hat) for j, v in enumerate(row) if v > 0]))
+    intersection = len(A & B)
+    total = len(A) + len(B)
+    return 2 * intersection / total if total > 0 else 1.0
+
+def iou2d(img_gt, img_hat):
+    A = set(zip(*[(i, j) for i, row in enumerate(img_gt) for j, v in enumerate(row) if v > 0]))
+    B = set(zip(*[(i, j) for i, row in enumerate(img_hat) for j, v in enumerate(row) if v > 0]))
+    I = len(A & B)
+    U = len(A | B)
+    return I / U

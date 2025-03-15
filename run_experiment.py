@@ -11,6 +11,7 @@ from time import time
 from xray_angio_3d import reconstruction
 from metrics import *
 from util import *
+from vessel_tree_generator.module import *
 
 OUTPUT_DIR="data/"
 OUTPUT_FILENAME="experiment_results.csv"
@@ -23,11 +24,29 @@ def reconstruct_and_measure(gt, xinfs):
     gt_vox = voxelize_points(gt)
     hat_vox = voxelize_points(hat)
 
+    sum_dice2d = 0 # will be averaged out
+    sum_iou2d = 0
+
+    if 'iou2d' in METRICS or 'dice2d' in METRICS:
+        for xinfo in xinfs:
+            spacing = xinfo.acquisition_params['spacing_r']
+            img_hat = make_projection(gt, 
+                xinfo.acquisition_params['alpha'], xinfo.acquisition_params['beta'], 
+                xinfo.acquisition_params['sod'], xinfo.acquisition_params['sid'],
+                (spacing, spacing), 512
+            )
+            img_gt = xinfo.image
+            sum_dice2d += dice2d(img_gt, img_hat)
+            sum_iou2d += iou2d(img_gt, img_hat)
+
+
     return {
         "Time [s]" : elapsed_s if 'time' in METRICS else None,
         "Dice 3D [%]" : dice3d(gt_vox, hat_vox) * 100 if 'dice' in METRICS else None,
         "IoU 3D [%]" : iou3d(gt_vox, hat_vox) * 100 if 'iou' in METRICS else None,
         "Chamfer distance 3D [mm]" : chamfer3d(gt_vox, hat_vox) * 1000 if 'chamfer' in METRICS else None,
+        'Avg IoU 2D [%]' : sum_iou2d / len(xinfs) if 'iou2d' in METRICS else None,
+        'Avg Dice 2D [%]' : sum_dice2d / len(xinfs) if 'dice2d' in METRICS else None,
     }
 
 def case_general(config):
@@ -39,7 +58,7 @@ def case_general(config):
         for ix in range(0, number_of_vessels):
             vessel = f"{tortosity}:{ix}"
             print(vessel)
-            gt, xinfs = load_sample(NAME, ix, tortosity)
+            gt, xinfs, _ = load_sample(NAME, ix, tortosity)
             res = reconstruct_and_measure(gt, xinfs)
             res = pd.DataFrame([{
                     "vessel" : vessel,
@@ -52,7 +71,7 @@ def case_general(config):
 
 def case_projections(config):
     df = []
-    gt, xinfs = load_sample(NAME, 0, "moderate")
+    gt, xinfs, _ = load_sample(NAME, 0, "moderate")
 
     for no_projections in range(1, config):
         print(no_projections)
@@ -75,7 +94,7 @@ def case_angles(config):
             return v
         return v / norm
     
-    gt, xinfs = load_sample(NAME, 0, "moderate")
+    gt, xinfs, _ = load_sample(NAME, 0, "moderate")
     triplet_count = config["experiment"]["testcase"]["triplet_count"]
     random.seed(43)
     random.shuffle(xinfs)
@@ -107,8 +126,30 @@ def case_angles(config):
     result = pd.concat(df, ignore_index=True)
     result.to_csv(os.path.join(OUTPUT_DIR, NAME, OUTPUT_FILENAME))
 
-def case_translations(config):
-    pass
+def case_noise(config):
+    df = []
+    gt, xinfs, noise = load_sample(NAME, 0, "moderate")
+    picked_noise = noise[0]
+    
+    # the last two don't have noise
+    xinfo1 = xinfs[-1]
+    xinfo2 = xinfs[-2]
+
+    for i, (t_x, t_y) in enumerate(picked_noise):
+        print(f"{i}/{len(picked_noise)}")
+        xinfo0 = xinfs[i]
+        res = reconstruct_and_measure(gt, [xinfo0, xinfo1, xinfo2])
+        res = pd.DataFrame([{
+            'translation' : [t_x, t_y],
+            'translation_norm' : np.linalg.norm([t_x, t_y]),
+            'scale' : 1,
+            **res
+        }])
+        df.append(res)
+    result = pd.concat(df, ignore_index=True)
+    print(result)
+    result.to_csv(os.path.join(OUTPUT_DIR, NAME, OUTPUT_FILENAME))
+
 
 def case_scaling(config):
     pass
@@ -126,8 +167,7 @@ if __name__ == "__main__":
         case_angles(config)
     elif TYPE == 'general':
         case_general(config)
-    elif TYPE == 'translations':
-        case_translations(config)
-    elif TYPE == 'scaling':
-        case_scaling(config)
-
+    elif TYPE == 'noise':
+        case_noise(config)
+    else:
+        raise Exception("Invalid experiment type")
