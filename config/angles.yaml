@@ -14,7 +14,7 @@ experiment:
 
   testcase:
     type: angles
-    triplet_count: 10
+    triplet_count: 150
     metrics:
       - dice
       - iou
