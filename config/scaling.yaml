@@ -8,7 +8,7 @@ experiment:
       - [0, 0]
       - [0, 90]
       - [90, 0]
-    scaling_xy_range: [0.5, 2, 0.1]
+    scaling_xy_range: [0.5, 2, 0.01]
     SID: 1.2
     SOD: 0.8
     SPACING: 0.00035
