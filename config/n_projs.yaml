@@ -14,7 +14,8 @@ experiment:
 
   testcase:
     type: projections
-    repeat_selection: 10
+    repeat_selection: 100
+    n_projs_upper_bnd: 16
     metrics:
       - dice
       - iou

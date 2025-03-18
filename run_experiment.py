@@ -71,17 +71,20 @@ def case_general(config):
 
 def case_projections(config):
     df = []
-    gt, xinfs, _ = load_sample(NAME, 0, "moderate")
 
-    for no_projections in range(1, config):
-        print(no_projections)
-        for _ in range(config['experiment']['testcase']['repeat_selection']):
-            res = reconstruct_and_measure(gt, np.random.choice(xinfs, no_projections, replace=False))
-            res = pd.DataFrame([{
-                    "# Projections": no_projections,
-                    **res
-            }])
-            df.append(res)    
+    for i in range(config['experiment']['dataset']['num_vessels_for_each']):
+        gt, xinfs, _ = load_sample(NAME, i, "moderate")
+        for no_projections in range(1, config['experiment']['testcase']['n_projs_upper_bnd']):
+            print(f"moderate:{i} {no_projections}")
+            for sel in range(config['experiment']['testcase']['repeat_selection']):
+                print(f"- {sel}/")
+                res = reconstruct_and_measure(gt, np.random.choice(xinfs, no_projections, replace=False))
+                res = pd.DataFrame([{
+                        "Vessel": f"moderate:{i}",
+                        "# Projections": no_projections,
+                        **res
+                }])
+                df.append(res)    
     result = pd.concat(df, ignore_index=True)
     result.to_csv(os.path.join(OUTPUT_DIR, NAME, OUTPUT_FILENAME))
 
