@@ -37,3 +37,37 @@ def load_config():
     with open(args.file, "r") as file:
         config = yaml.safe_load(file)
     return config
+
+
+def convert_clinical_to_standard_angles(clinical_angles):
+    '''
+    clinical_angles: A list of strings; each string must have the form "LAO/RAO X, CRA/CAU Y".
+    For example, ['LAO 35, CAU 10', 'RAO 20, CRA 0']
+
+    This function assumes that the clinical angles refer to a patient lying supine in the xz plane.
+    Standard angles refer to azimuthal and elevation angle representation of spherical coordinates.
+    '''
+    clinical_key = {'RAO': 1, 'LAO': -1, 'CRA': 1, 'CAU': -1}
+    theta_array = []
+    phi_array = []
+    for angle_pair in clinical_angles:
+        theta_string = angle_pair.split(',')[0]
+        phi_string = angle_pair.split(',')[1]
+
+        theta_clinical = float(theta_string.split()[1])*clinical_key[theta_string.split()[0]]
+        phi_clinical = float(phi_string.split()[1])*clinical_key[phi_string.split()[0]]
+
+        theta = theta_clinical - 90
+        phi = phi_clinical
+
+        theta_array.append(theta)
+        phi_array.append(phi)
+
+    return theta_array, phi_array
+    
+
+convert_clinical_to_standard_angles([
+    "LAO 40, CRA 10",
+    "RAO 75, CRA 10",
+    "RAO 30, CAU 0"
+])
