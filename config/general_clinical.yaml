@@ -5,11 +5,11 @@ experiment:
       - simple
       - moderate
       - tortuous
-    num_vessels_for_each: 5
+    num_vessels_for_each: 200
     angle_pairs:
-      - [-130, 10]   # LAO 40
-      - [-15, 10]  # LAO 20, Cranial 20
-      - [-60, 0]    # RAO 30 
+      - [-60, 30.0] # RAO 30, CRA 30
+      - [-150, 30]  # LAO 60, CRA 30
+      - [-60, -30]  # RAO 30, CAU 30
     SID: 1.2
     SOD: 0.8
     SPACING: 0.00035

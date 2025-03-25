@@ -65,9 +65,18 @@ def convert_clinical_to_standard_angles(clinical_angles):
 
     return theta_array, phi_array
     
-
+print(
 convert_clinical_to_standard_angles([
-    "LAO 40, CRA 10",
-    "RAO 75, CRA 10",
-    "RAO 30, CAU 0"
+    "RAO 30, CRA 30",
+    "LAO 60, CRA 30",
+    "RAO 30, CAU 30"
 ])
+)
+
+# print(
+# convert_clinical_to_standard_angles([
+#     "LAO 40, CAU 30",
+#     "LAO 60, CRA 30",
+#     "RAO 30, CAU 30"
+# ])
+# )

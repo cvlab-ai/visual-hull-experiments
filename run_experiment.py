@@ -24,28 +24,23 @@ def reconstruct_and_measure(gt, xinfs):
     gt_vox = voxelize_points(gt)
     hat_vox = voxelize_points(hat)
 
-    sum_dice2d = 0 # will be averaged out
-    sum_iou2d = 0
-
+    sum_dice2d = 0
     if 'iou2d' in METRICS or 'dice2d' in METRICS:
         for xinfo in xinfs:
             spacing = xinfo.acquisition_params['spacing_r']
-            img_hat = make_projection(gt, 
+            img_hat = make_projection(hat, 
                 xinfo.acquisition_params['alpha'], xinfo.acquisition_params['beta'], 
                 xinfo.acquisition_params['sod'], xinfo.acquisition_params['sid'],
                 (spacing, spacing), 512
             )
             img_gt = xinfo.image
             sum_dice2d += dice2d(img_gt, img_hat)
-            sum_iou2d += iou2d(img_gt, img_hat)
-
 
     return {
         "Time [s]" : elapsed_s if 'time' in METRICS else None,
         "Dice 3D [%]" : dice3d(gt_vox, hat_vox) * 100 if 'dice' in METRICS else None,
         "IoU 3D [%]" : iou3d(gt_vox, hat_vox) * 100 if 'iou' in METRICS else None,
         "Chamfer distance 3D [mm]" : chamfer3d(gt_vox, hat_vox) * 1000 if 'chamfer' in METRICS else None,
-        'Avg IoU 2D [%]' : sum_iou2d / len(xinfs) if 'iou2d' in METRICS else None,
         'Avg Dice 2D [%]' : sum_dice2d / len(xinfs) if 'dice2d' in METRICS else None,
     }
 
