@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import itertools
 import random
+import scipy.ndimage as ndimage
 
 from time import time
 from xray_angio_3d import reconstruction
@@ -34,6 +35,8 @@ def reconstruct_and_measure(gt, xinfs):
                 (spacing, spacing), 512
             )
             img_gt = xinfo.image
+            dilation_radius = int(np.ceil(VOXELIZATION_THRESH_DEFAULT / spacing))
+            img_hat = ndimage.binary_dilation(img_hat, structure=np.ones((dilation_radius, dilation_radius)))
             sum_dice2d += dice2d(img_gt, img_hat)
 
     return {
